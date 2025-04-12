@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Air Quality Predictor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --primary-color: #00b4db;
+      --secondary-color: #0083b0;
+      --bg-gradient: linear-gradient(135deg, #00b4db, #0083b0, #00c9a7);
+      --card-bg: #ffffff;
+      --text-color: #333;
+      --accent: #00c9a7;
+      --button-hover: #007299;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      color: var(--text-color);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 15px;
+      padding: 40px 30px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 12px 24px var(--shadow-color);
+      text-align: center;
+      transition: box-shadow 0.3s ease-in-out;
+    }
+
+    .card:hover {
+      box-shadow: 0 12px 40px var(--shadow-color);
+    }
+
+    .card h1 {
+      font-size: 32px;
+      margin-bottom: 30px;
+      color: var(--secondary-color);
+      font-weight: bold;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      text-align: left;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+      font-size: 16px;
+      color: #333;
+      background-color: #f9f9f9;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 8px rgba(0, 180, 219, 0.3);
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 16px;
+      width: 100%;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 12px rgba(0, 180, 219, 0.3);
+    }
+
+    button:hover {
+      opacity: 0.9;
+      transform: scale(1.05);
+      background: var(--button-hover);
+    }
+
+    button:active {
+      transform: scale(1);
+      background: var(--primary-color);
+    }
+
+    #result {
+      margin-top: 25px;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        padding: 35px 25px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Air Quality Predictor</h1>
+    <form id="aqiForm">
+      <label for="temperature">🌡 Temperature (°C):</label>
+      <input type="number" step="any" id="temperature" required>
+
+      <label for="humidity">💧 Humidity (%):</label>
+      <input type="number" step="any" id="humidity" required>
+
+      <label for="pm25">🫁 PM2.5 (µg/m³):</label>
+      <input type="number" step="any" id="pm25" required>
+
+      <button type="submit">Predict AQI</button>
+    </form>
+    <div id="result"></div>
+    
+  </div>
+
+  <script>
+    const form = document.getElementById('aqiForm');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const temperature = document.getElementById('temperature').value;
+      const humidity = document.getElementById('humidity').value;
+      const pm25 = document.getElementById('pm25').value;
+
+      const response = await fetch('http://localhost:5000/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ temperature, humidity, pm25 })
+      });
+
+      const data = await response.json();
+      if (data.prediction !== undefined) {
+        resultDiv.innerText = `✅ Predicted AQI: ${data.prediction.toFixed(2)}`;
+      } else {
+        resultDiv.innerText = `❌ Error: ${data.error}`;
+      }
+    });
+  </script>
+</body>
+</html>
